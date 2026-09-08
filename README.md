@@ -47,3 +47,7 @@ Ett projekt för att automatiskt sortera LEGO-bitar med hjälp av bildanalys (co
   - Förbered en demo för presentation
   - Sammanställ dokumentation, instruktionsmanual och framtida förbättringsförslag
   - Leverans: demo och README/konfigurationsguide
+
+### Flödesschema
+
+- Öppna [filen](https://drive.google.com/file/d/1OC3C6sR18h6_vbTAWDYjcz25fHn8egxI/view?usp=sharing) i [draw.io](https://app.diagrams.net/) för att redigera.
