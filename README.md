@@ -20,41 +20,28 @@ Ett projekt för att automatiskt sortera LEGO-bitar med hjälp av bildanalys (co
 
 ## Arbetsplan fram till v.50
 
-- v.36–v.38: Förberedelser och krav
+- v.36–v.38
   - Bestäm hårdvara (kamera, belysning, sorteringsyta, manipulator)
   - Sätt upp utvecklingsmiljö och versionshantering
-  - Samla och märk upp en första dataset med bilder
-  - Leverans: lista över vald hårdvara och ett första bilddataset
+  - Sätta upp kamerastream till pythonserver
 
-- v.39–v.41: Prototyp för skanning/identifiering
-  - Implementera en första CV-pipeline (t.ex. OpenCV + enkel klassificerare eller transfer learning)
-  - Kör experiment på datasetet, utvärdera noggrannhet
-  - Leverans: fungerande detektion/klassificering på testbilder
+- v.39–v.41
+  - Testa [brickognize](https://brickognize.com/)
+  - Skissa på hårdvara, esp, rullband, hållare m.m.
 
-- v.42–v.44: Separationsmekanism
-  - Designa och bygg mekanik för att separera enskilda bitar (t.ex. vibrerande matning, kanaler)
-  - Iterera för att pålitligt mata fram en bit i taget
-  - Leverans: fysisk prototyp som kan framföra en bit i taget till skanningsposition
+- v.42–v.44
+  - Påbörja utveckling av mekanism för att separera enskilda bitar
+  - Fixa annan hårdvara som behövs (rullband, hållare, belysning)
 
-- v.45–v.47: Manipulator och rörelsestyrning
-  - Integrera en manipulator (servo/robotarm) för att plocka och placera
-  - Koppla ihop CV-output med rörelseplanering
-  - Leverans: system som plockar identifierad bit och placerar i rätt magasin
+- v.45–v.47
+  - Första test av hela systemet
+  - Hitta lösa problem
 
-- v.48–v.49: Integration och robusthetstest
-  - Felsökning, robusthetstester och förbättring av felhantering
-  - Prestandaoptimering och hantering av kantfall
-  - Leverans: stabilt system som klarar kontinuerlig körning under längre period
+- v.48–v.49
+  - Integrera alla komponenter
+  - Finslipa
 
 - v.50: Demo och dokumentation
   - Förbered en demo för presentation
   - Sammanställ dokumentation, instruktionsmanual och framtida förbättringsförslag
   - Leverans: demo och README/konfigurationsguide
-
-## Nästa steg (kort)
-
-1. Bestäm hårdvara och sätt upp miljö (prioritet hög)
-2. Börja samla och märka dataset för CV
-3. Starta enkel CV-prototyp
-
----
