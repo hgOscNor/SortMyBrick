@@ -11,14 +11,16 @@ Ett projekt för att automatiskt sortera LEGO-bitar med hjälp av bildanalys (co
 - Robin
 - Aidin
 
-## Delmål
+## Projectplan
+
+### Delmål
 
 1. Separera enskild bit
 2. Skanna bit (identifiera med CV)
 3. Flytta biten (placera i rätt magasin)
 4. Starta om / återställ för nästa cykel
 
-## Arbetsplan fram till v.50
+### Arbetsplan fram till v.50
 
 - v.36–v.38
   - Bestäm hårdvara (kamera, belysning, sorteringsyta, manipulator)
