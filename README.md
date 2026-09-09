@@ -11,6 +11,12 @@ Ett projekt för att automatiskt sortera LEGO-bitar med hjälp av bildanalys (co
 - Robin
 - Aidin
 
+## Utvekling
+
+### Kamera
+
+Installera appen [IP Webcam](https://play.google.com/store/apps/details?id=com.pas.webcam&hl=sv&pli=1) på en Android-telefon. Starta appen och välj "Start server". Notera IP-adressen som visas, t.ex. `http://
+
 ## Projectplan
 
 ### Delmål
