@@ -2,9 +2,22 @@ from __future__ import annotations
 import cv2
 import threading
 import time
-from camera.camera import Camera
-from camera.structure.frame import CameraFrame
-from logger.logger import Logger
+
+if __package__:
+    # Package imports (``python -m server.main``).
+    from .camera import Camera
+    from .structure.frame import CameraFrame
+    try:
+        from ..logger.logger import Logger
+    except ImportError:
+        # Direct script layout (``python server/main.py``) imports this
+        # module as ``camera.http_cam``, which has no parent package.
+        from logger.logger import Logger
+else:
+    # Script imports (``python server/main.py``).
+    from camera.camera import Camera
+    from camera.structure.frame import CameraFrame
+    from logger.logger import Logger
 
 class HTTPCam(Camera):
     def __init__(self) -> None:
@@ -14,21 +27,22 @@ class HTTPCam(Camera):
         self._stop_event = threading.Event()
         self._frame_counter = 0
         
-    def start_stream(self, url: str) -> None:
+    def start_stream(self, url: str) -> bool:
         if self._cap is not None:
             Logger.get().warning("start_stream() called but stream is already running")
-            return
+            return False
         self._cap = cv2.VideoCapture(url)
         if not self._cap.isOpened():
             Logger.get().error(f"Failed to open video stream from URL: {url}")
             self._cap = None
-            return
+            return False
         
         self._stop_event.clear()
         
         # Daemon thread kills performance (from testing)
         self._thread = threading.Thread(target=self._loop, daemon=False)
         self._thread.start()
+        return True
         
     def _loop(self) -> None:
         log = Logger.get()

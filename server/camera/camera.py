@@ -42,7 +42,7 @@ class Camera(ABC):
         self.on_frame: Event[CameraFrame] = Event()
     
     @abstractmethod
-    def start_stream(self, url: str) -> None:
+    def start_stream(self, url: str) -> bool:
         """Start the camera stream from the given URL."""
         raise NotImplementedError("start_stream method not implemented")
 

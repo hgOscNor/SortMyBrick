@@ -1,9 +1,16 @@
 from __future__ import annotations
 
-from logger.logger import Logger
-from queue import Queue, Full, Empty
 import os
+from pathlib import Path
+from queue import Queue, Full, Empty
 from typing import TYPE_CHECKING
+
+if __package__:
+    # Package import (``python -m server.main``).
+    from .logger.logger import Logger
+else:
+    # Script import (``python server/main.py``).
+    from logger.logger import Logger
 
 if TYPE_CHECKING:
     from camera.structure.frame import CameraFrame
@@ -44,7 +51,12 @@ def handle_camera_frame(frame: CameraFrame) -> None:
 def main() -> None:
     try:
         import cv2
-        from camera.http_cam import HTTPCam
+        if __package__:
+            # Package import (``python -m server.main``).
+            from .camera.http_cam import HTTPCam
+        else:
+            # Script import (``python server/main.py``).
+            from camera.http_cam import HTTPCam
     except ImportError as exc:
         raise RuntimeError(
             "Camera dependencies are missing. Install numpy and opencv-python."
@@ -58,7 +70,8 @@ def main() -> None:
 
     try:
         cam.on_frame.subscribe(handle_camera_frame)
-        cam.start_stream(camera_url)
+        if not cam.start_stream(camera_url):
+            raise RuntimeError(f"Unable to open camera stream: {camera_url}")
         logger.info("Camera stream started. Press Ctrl+C to stop.")
 
         while True:
@@ -87,5 +100,5 @@ if __name__ == "__main__":
             "python-dotenv is missing. Install the project dependencies."
         ) from exc
 
-    load_dotenv()
+    load_dotenv(Path(__file__).with_name(".env"))
     main()
