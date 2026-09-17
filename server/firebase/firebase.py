@@ -14,6 +14,7 @@ Förutsättningar:
 """
 
 import logging
+from pathlib import Path
 from typing import Any, Callable, Optional
 
 import firebase_admin
@@ -235,8 +236,8 @@ class FirebaseRealtimeHandler:
 if __name__ == "__main__":
     # Byt ut mot din egen sökväg och databas-URL
     handler = FirebaseRealtimeHandler(
-        cred_path="serviceAccountKey.json",
-        database_url="https://ditt-projekt-default-rtdb.europe-west1.firebasedatabase.app",
+        cred_path=str(Path(__file__).with_name("sortmybrick-43ef9-firebase-adminsdk-fbsvc-e5d3916f05.json")),
+        database_url="https://sortmybrick-43ef9-default-rtdb.europe-west1.firebasedatabase.app/",
     )
 
     # Skapa en ny post

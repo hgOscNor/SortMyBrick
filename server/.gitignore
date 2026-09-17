@@ -216,3 +216,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+sortmybrick-43ef9-firebase-adminsdk*
