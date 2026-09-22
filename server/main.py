@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from asyncio import sleep
+import asyncio
 import os
 from pathlib import Path
 from queue import Queue, Full, Empty
 from typing import TYPE_CHECKING
+import firebase.firebase  as fb
+from camera.http_cam import HTTPCam
+import cv2
 
 if __package__:
     # Package import (``python -m server.main``).
@@ -49,18 +54,13 @@ def handle_camera_frame(frame: CameraFrame) -> None:
 
 
 def main() -> None:
-    try:
-        import cv2
-        if __package__:
-            # Package import (``python -m server.main``).
-            from .camera.http_cam import HTTPCam
-        else:
-            # Script import (``python server/main.py``).
-            from camera.http_cam import HTTPCam
-    except ImportError as exc:
-        raise RuntimeError(
-            "Camera dependencies are missing. Install numpy and opencv-python."
-        ) from exc
+    
+
+    fb = fb.FirebaseRealtimeHandler(
+                    cred_path=str(Path(__file__).with_name("sortmybrick-43ef9-firebase-adminsdk-fbsvc-e5d3916f05.json")),
+                    database_url=str(os.getenv("FIREBASE_RDB_URL")),
+                )
+    fb.set("TotalFrames", 0)
 
     logger = Logger.get()
     cam = HTTPCam()
@@ -74,6 +74,8 @@ def main() -> None:
             raise RuntimeError(f"Unable to open camera stream: {camera_url}")
         logger.info("Camera stream started. Press Ctrl+C to stop.")
 
+        total_frames = 0
+
         while True:
             try:
                 raw_frame = raw_frame_q.get_nowait()
@@ -85,6 +87,13 @@ def main() -> None:
             # user stop the stream without relying on Ctrl+C.
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
+
+            # # fb.set("TotalFrames", float(fb.read("TotalFrames")) + total_frames)
+            # # print(f"Total frames processed: {total_frames}")
+            # # print(f"{fb.read('TotalFrames')} frames in total in the database.")
+            # # total_frames += 1
+
+
     except KeyboardInterrupt:
         logger.info("Stopping camera stream...")
     finally:
@@ -101,4 +110,6 @@ if __name__ == "__main__":
         ) from exc
 
     load_dotenv(Path(__file__).with_name(".env"))
+
+
     main()

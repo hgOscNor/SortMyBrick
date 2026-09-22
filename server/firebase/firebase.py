@@ -237,7 +237,7 @@ if __name__ == "__main__":
     # Byt ut mot din egen sökväg och databas-URL
     handler = FirebaseRealtimeHandler(
         cred_path=str(Path(__file__).with_name("sortmybrick-43ef9-firebase-adminsdk-fbsvc-e5d3916f05.json")),
-        database_url="https://sortmybrick-43ef9-default-rtdb.europe-west1.firebasedatabase.app/",
+        database_url="",
     )
 
     # Skapa en ny post
