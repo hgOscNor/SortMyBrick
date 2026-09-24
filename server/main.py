@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from queue import Queue, Full, Empty
 from typing import TYPE_CHECKING
-import firebase.firebase  as fb
+import firebase.realtime_db  as rtdb
 from camera.http_cam import HTTPCam
 import cv2
 
@@ -56,7 +56,7 @@ def handle_camera_frame(frame: CameraFrame) -> None:
 def main() -> None:
     
 
-    fb = fb.FirebaseRealtimeHandler(
+    fb = rtdb.FirebaseRealtimeHandler(
                     cred_path=str(Path(__file__).with_name("sortmybrick-43ef9-firebase-adminsdk-fbsvc-e5d3916f05.json")),
                     database_url=str(os.getenv("FIREBASE_RDB_URL")),
                 )
