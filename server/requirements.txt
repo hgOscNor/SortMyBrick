@@ -2,3 +2,4 @@ numpy
 opencv-python
 python-dotenv
 firebase-admin
+git+https://github.com/GustavPetterssonBjorklund/superdator-inference.git#subdirectory=client
