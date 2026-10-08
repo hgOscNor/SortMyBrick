@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from asyncio import sleep
-import asyncio
 import os
 import threading
 import time
@@ -112,18 +110,10 @@ def sender_loop(client: InferenceClient, stop_event: threading.Event, logger: Lo
             last_failure_log = now
         was_failing = True
 
-def main() -> None:
-    
-
-    fb = rtdb.FirebaseRealtimeHandler(
-                    cred_path=str(Path(__file__).with_name(os.getenv("FIREBASE_API_KEY"))),
-                    database_url=str(os.getenv("FIREBASE_RDB_URL")),
-                )
-    # fb.set("TotalFrames", 0)
-
-    logger = Logger.get()
+def start_cam():
     cam = HTTPCam()
     camera_url = os.getenv("CAM_URL")
+    logger = Logger.get()
     if not camera_url:
         raise RuntimeError("Camera URL not set in environment variables")
 
@@ -132,7 +122,20 @@ def main() -> None:
     if not cam.start_stream(camera_url):
         raise RuntimeError(f"Unable to open camera stream: {camera_url}")
     logger.info("Camera stream started. Press Ctrl+C to stop.")
+    return cam
 
+
+def main() -> None:
+    
+
+    fb = rtdb.FirebaseRealtimeHandler(
+                    cred_path=str(Path(__file__).with_name(os.getenv("FIREBASE_API_KEY"))), # type: ignore
+                    database_url=str(os.getenv("FIREBASE_RDB_URL")),
+                )
+    # fb.set("TotalFrames", 0)
+
+    logger = Logger.get()
+    cam = start_cam()
 
     with InferenceClient(
         "wss://lego-inference.spetsen.se/stream",
@@ -150,6 +153,12 @@ def main() -> None:
             while True:
                 try:
                     annotated_frame = processed_frame_q.get(timeout=0.1)
+                    if annotated_frame is not None:
+                        detections = client.latest_detections
+                        if detections:
+                            logger.info(f"Detected: {[(d['name'], round(d['confidence'], 2)) for d in detections]}")
+                        cv2.imshow("Inference result", annotated_frame)
+
                 except Empty:
                     annotated_frame = None
                 if annotated_frame is not None:
