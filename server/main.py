@@ -3,6 +3,8 @@ from __future__ import annotations
 from asyncio import sleep
 import asyncio
 import os
+import threading
+import time
 from pathlib import Path
 from queue import Queue, Full, Empty
 from typing import TYPE_CHECKING
@@ -69,6 +71,47 @@ def on_frame(frame: np.ndarray) -> None:
         except Full:
             pass
 
+def sender_loop(client: InferenceClient, stop_event: threading.Event, logger: Logger) -> None:
+    """Send queued frames to the inference server on a dedicated thread.
+
+    ``client.send`` is a blocking TCP write: if the server is slow or wedged,
+    this thread simply blocks (which paces us to the server's rate), while the
+    GUI thread keeps running. ``raw_frame_q`` is maxsize=1 with drop-oldest,
+    so we always send the most recent frame.
+    """
+    deadline = time.monotonic() + 15.0
+    while not client.connected and time.monotonic() < deadline:
+        if stop_event.is_set():
+            return
+        time.sleep(0.2)
+    if not client.connected:
+        logger.warning("Inference server not connected yet; will keep trying")
+
+    was_failing = False
+    last_failure_log = 0.0
+    while not stop_event.is_set():
+        try:
+            camera_frame = raw_frame_q.get(timeout=0.25)
+        except Empty:
+            continue
+        if stop_event.is_set():
+            return
+
+        # Frames must be OpenCV-style BGR NumPy arrays.
+        if client.send(camera_frame.data):
+            if was_failing:
+                logger.info("Inference server reachable again, resending frames")
+                was_failing = False
+            continue
+
+        now = time.monotonic()
+        if not was_failing or now - last_failure_log >= 5.0:
+            logger.warning(
+                f"Frame not sent to inference server (connected={client.connected})"
+            )
+            last_failure_log = now
+        was_failing = True
+
 def main() -> None:
     
 
@@ -95,19 +138,18 @@ def main() -> None:
         "wss://lego-inference.spetsen.se/stream",
         on_frame=on_frame,
     ) as client:
+        sender_stop = threading.Event()
+        sender = threading.Thread(
+            target=sender_loop,
+            args=(client, sender_stop, logger),
+            name="inference-sender",
+            daemon=True,
+        )
+        sender.start()
         try:
             while True:
                 try:
-                    camera_frame = raw_frame_q.get(timeout=0.1)
-                except Empty:
-                    camera_frame = None
-
-                if camera_frame is not None:
-                    # Frames must be OpenCV-style BGR NumPy arrays.
-                    client.send(camera_frame.data)
-
-                try:
-                    annotated_frame = processed_frame_q.get_nowait()
+                    annotated_frame = processed_frame_q.get(timeout=0.1)
                 except Empty:
                     annotated_frame = None
                 if annotated_frame is not None:
@@ -116,6 +158,8 @@ def main() -> None:
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
         finally:
+            sender_stop.set()
+            sender.join(timeout=2.0)
             cam.stop_stream()
             cv2.destroyAllWindows()
         # total_frames = 0
